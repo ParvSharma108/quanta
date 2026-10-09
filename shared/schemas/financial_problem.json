@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FinancialProblem",
+  "description": "Canonical definition of a corporate treasury capital allocation problem in QUANTA",
+  "type": "object",
+  "required": [
+    "capital",
+    "assets",
+    "liabilities",
+    "constraints",
+    "risk_tolerance",
+    "minimum_liquidity"
+  ],
+  "properties": {
+    "capital": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total available capital to allocate (e.g. 100.0 Cr)"
+    },
+    "step_size": {
+      "type": "number",
+      "default": 5.0,
+      "description": "Granularity / discrete quantum of allocation in capital units"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "asset_type", "expected_return", "risk", "liquidity"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "asset_type": { "type": "string" },
+          "cost": { "type": "number", "default": 0.0 },
+          "expected_return": { "type": "number", "minimum": -1.0, "maximum": 5.0 },
+          "risk": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "liquidity": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "volatility": { "type": "number", "default": 0.0 },
+          "metadata": { "type": "object" }
+        }
+      }
+    },
+    "liabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "principal", "interest_rate", "priority"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "principal": { "type": "number" },
+          "interest_rate": { "type": "number" },
+          "maturity_months": { "type": "integer" },
+          "priority": { "type": "integer" },
+          "is_mandatory_reserve": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "constraint_type", "parameters"],
+        "properties": {
+          "id": { "type": "string" },
+          "constraint_type": { "type": "string" },
+          "description": { "type": "string" },
+          "parameters": { "type": "object" }
+        }
+      }
+    },
+    "risk_tolerance": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 0.5
+    },
+    "minimum_liquidity": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 0.20
+    },
+    "objective": {
+      "type": "string",
+      "enum": ["maximize_risk_adjusted_return", "minimize_risk", "maximize_liquidity"],
+      "default": "maximize_risk_adjusted_return"
+    },
+    "market_state": {
+      "type": "string",
+      "enum": ["normal", "bull", "bear", "high_volatility", "liquidity_crunch"],
+      "default": "normal"
+    }
+  }
+}

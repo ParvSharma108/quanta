@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: quanta-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-quanta_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quanta_secure_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-quanta_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quanta_admin} -d ${POSTGRES_DB:-quanta_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ai-engine:
+    build:
+      context: ./services/ai-engine
+      dockerfile: Dockerfile
+    container_name: quanta-ai-engine
+    environment:
+      - AI_ENGINE_HOST=0.0.0.0
+      - AI_ENGINE_PORT=8000
+      - ENVIRONMENT=development
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/ai-engine:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  optimization-engine:
+    build:
+      context: ./services/optimization-engine
+      dockerfile: Dockerfile
+    container_name: quanta-optimization-engine
+    environment:
+      - OPTIMIZATION_ENGINE_PORT=8001
+      - ENVIRONMENT=development
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/optimization-engine:/app
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: quanta-backend
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgres://${POSTGRES_USER:-quanta_admin}:${POSTGRES_PASSWORD:-quanta_secure_dev_password}@postgres:5432/${POSTGRES_DB:-quanta_db}?sslmode=disable
+      - AI_ENGINE_URL=http://ai-engine:8000
+      - OPTIMIZATION_ENGINE_URL=http://optimization-engine:8001
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: quanta-frontend
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
