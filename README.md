@@ -15,7 +15,7 @@
 | :--- | :--- | :--- |
 | **Atharv (Team Lead)** | **AI Decision Engine** | Search Algorithms, CSP, Bayesian Risk Reasoning, Game Theory (Minimax/Alpha-Beta), MDP & RL, Intelligent Agent Coordinator |
 | **Parv** | **Optimization Engine** | Mathematical Programming, QUBO Formulations, QAOA, Quantum Simulation & Classical-vs-Quantum Benchmarking |
-| **Aryan Randibazz** | **Backend & Platform** | Go REST API, PostgreSQL, Authentication, Audit Logs, SvelteKit Frontend & Cloud/Docker Deployment |
+| **Aryan** | **Backend & Platform** | Go REST API, PostgreSQL, Authentication, Audit Logs, SvelteKit Frontend & Cloud/Docker Deployment |
 
 ---
 
